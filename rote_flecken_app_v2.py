@@ -121,16 +121,14 @@ for i, uploaded_file in enumerate(uploaded_files):
         st.error(f"❌ Fehler beim Verarbeiten der Datei `{uploaded_file.name}`: {e}")
 
 
-if canvas_result.json_data and "objects" in canvas_result.
-            st.markdown("🎯 Manuell markierte Flecken:")
-            for obj in canvas_result.json_data["objects"]:
-                x = obj["left"]
-                y = obj["top"]
-                w = obj["width"]
-                h = obj["height"]
-                st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
+if canvas_result.json_data and "objects" in canvas_result.json_data:
+    st.markdown("🎯 Manuell markierte Flecken:")
+    for obj in canvas_result.json_data["objects"]:
+        x = obj["left"]
+        y = obj["top"]
+        w = obj["width"]
+        h = obj["height"]
+        st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
 
-        # 📦 Summen aktualisieren
-        total_flecken += fleckenzahl
-        total_pixel_area += fläche_pixel
-
+    total_flecken += fleckenzahl
+    total_pixel_area += fläche_pixel
