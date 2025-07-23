@@ -14,6 +14,13 @@ uploaded_files = st.file_uploader(
 dpi = 300  # Beispielwert
 pixels_per_mm = dpi / 25.4
 
+# 🎛️ Farbsensitivität per Slider
+st.sidebar.header("🎨 Farbempfindlichkeit einstellen")
+h_min = st.sidebar.slider("Hue min", 0, 180, 0)
+h_max = st.sidebar.slider("Hue max", 0, 180, 30)
+s_min = st.sidebar.slider("Sättigung min", 0, 255, 70)
+v_min = st.sidebar.slider("Helligkeit min", 0, 255, 50)
+
 if uploaded_files:
     total_flecken = 0
     total_pixel_area = 0
@@ -46,8 +53,11 @@ if uploaded_files:
             hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
 
             # 🎨 Farbdefinition: Rot + Braun
-            lower_red1 = np.array([0, 70, 50])
-            upper_red1 = np.array([10, 255, 255])
+            # 🔧 Dynamischer HSV-Farbbereich
+            lower_dynamic = np.array([h_min, s_min, v_min])
+            upper_dynamic = np.array([h_max, 255, 255])
+            mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
+
             lower_red2 = np.array([170, 70, 50])
             upper_red2 = np.array([180, 255, 255])
             lower_brown = np.array([10, 100, 20])
