@@ -92,7 +92,7 @@ for uploaded_file in uploaded_files:
         canvas_result = st_canvas(
             fill_color="rgba(255, 0, 0, 0.3)",
             stroke_width=2,
-            background_image=Image.fromarray(image_np),
+            background_image = image_np
             update_streamlit=True,
             height=image_np.shape[0],
             width=image_np.shape[1],
