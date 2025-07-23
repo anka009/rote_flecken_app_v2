@@ -89,6 +89,9 @@ for uploaded_file in uploaded_files:
         # 🖍️ Canvas zur manuellen Markierung
         st.subheader("🖍️ Manuelle Fleckenmarkierung")
 
+        from PIL import Image
+
+        pil_image = Image.fromarray(image_np)
         canvas_result = st_canvas(
             fill_color="rgba(255, 0, 0, 0.3)",
             stroke_width=2,
