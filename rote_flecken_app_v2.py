@@ -2,6 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 from PIL import Image, ImageSequence
+from streamlit_drawable_canvas import st_canvas
 
 # 📥 Upload-Abschnitt
 uploaded_files = st.file_uploader(
@@ -77,6 +78,30 @@ if uploaded_files:
             output = image_np.copy()
             cv2.drawContours(output, filtered, -1, (0, 255, 0), 2)
             st.image(output, caption="Markierte Flecken", channels="RGB")
+
+# 🖍️ Manuelle Fleckenmarkierung via Canvas
+st.subheader("🖍️ Manuelle Fleckenmarkierung")
+
+canvas_result = st_canvas(
+    fill_color="rgba(255, 0, 0, 0.3)",
+    stroke_width=2,
+    background_image=Image.fromarray(image_np),
+    update_streamlit=True,
+    height=image_np.shape[0],
+    width=image_np.shape[1],
+    drawing_mode="rect",  # Alternative: "freedraw", "line", "circle"
+    key=f"canvas_{i}"
+)
+
+# 📋 Auslesen der Rechteck-Koordinaten
+if canvas_result.json_data and "objects" in canvas_result.json_data:
+    st.markdown("🎯 Manuell markierte Flecken:")
+    for obj in canvas_result.json_data["objects"]:
+        x = obj["left"]
+        y = obj["top"]
+        w = obj["width"]
+        h = obj["height"]
+        st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
 
             # 📦 Summen aktualisieren
             total_flecken += fleckenzahl
