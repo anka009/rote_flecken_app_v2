@@ -103,6 +103,6 @@ if canvas_result.json_data and "objects" in canvas_result.json_data:
         h = obj["height"]
         st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
 
-            # 📦 Summen aktualisieren
-            total_flecken += fleckenzahl
-            total_pixel_area += fläche_pixel
+         # 📦 Summen aktualisieren
+        total_flecken += fleckenzahl
+        total_pixel_area += fläche_pixel
