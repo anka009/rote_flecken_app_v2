@@ -93,7 +93,7 @@ for uploaded_file in uploaded_files:
             fill_color="rgba(255, 0, 0, 0.3)",
             stroke_width=2,
             background_image = image_np
-            update_streamlit=True,
+            update_streamlit=True
             height=image_np.shape[0],
             width=image_np.shape[1],
             drawing_mode="rect",
