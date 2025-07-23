@@ -153,6 +153,12 @@ try:
 except Exception as e:
     st.error(f"❌ Fehler bei der manuellen Analyse: {e}")
 
+# 💠 Initialisierung außerhalb aller Schleifen
+total_flecken = 0
+total_pixel_area = 0
+
+if uploaded_files:
+    # 👇 Deine Schleife über die Dateien etc.
 
     total_flecken += fleckenzahl
     total_pixel_area += fläche_pixel
