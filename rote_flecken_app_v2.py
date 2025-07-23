@@ -44,44 +44,44 @@ if uploaded_files:
             st.error("❌ Bild konnte nicht verarbeitet werden.")
             continue
 
-        # 🔄 Bildanalyse pro Frame
-        for i, frame in enumerate(frames):
-            if len(frames) > 1:
-                st.subheader(f"📄 Seite {i+1}")
+   
+# 🔄 Bildanalyse pro Frame
+for i, frame in enumerate(frames):
+    if len(frames) > 1:
+        st.subheader(f"📄 Seite {i+1}")
 
-            image_np = np.array(frame)
-            hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
+    # 🖼️ Frame als NumPy-Array
+    image_np = np.array(frame)
 
-            # 🎨 Farbdefinition: Rot + Braun
-            # 🔧 Dynamischer HSV-Farbbereich
-            lower_dynamic = np.array([h_min, s_min, v_min])
-            upper_dynamic = np.array([h_max, 255, 255])
-            mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
+    # 🎨 Farbkonvertierung zu HSV
+    hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
 
-        # 🎨 Farbkonvertierung zu HSV
-hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
+    # 🎚️ Dynamische Farbgrenzen aus Sidebar-Slidern
+    lower_dynamic = np.array([h_min, s_min, v_min])
+    upper_dynamic = np.array([h_max, 255, 255])
 
-# 🎚️ Dynamischer HSV-Bereich aus Slidern
-lower_dynamic = np.array([h_min, s_min, v_min])
-upper_dynamic = np.array([h_max, 255, 255])
+    # 🧪 Maske für Farbbereich erzeugen
+    mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
 
-# 🧪 Maske auf Basis des gewählten Farbbereichs
-mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
+    # 🧹 Maske säubern
+    kernel = np.ones((5, 5), np.uint8)
+    mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-# 🧹 Maske säubern
-kernel = np.ones((5, 5), np.uint8)
-mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    # 🔍 Konturen erkennen & filtern
+    contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    min_area = 50  # Mindestfläche in Pixel
+    filtered = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
 
-# 🔍 Konturen finden & filtern
-contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-min_area = 50
-filtered = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
+    # 📊 Analyse pro Frame
+    fleckenzahl = len(filtered)
+    fläche_pixel = sum(cv2.contourArea(cnt) for cnt in filtered)
+    fläche_mm2 = fläche_pixel / (pixels_per_mm ** 2)
 
-# 📐 Fleckenberechnung
-fleckenzahl = len(filtered)
-fläche_pixel = sum(cv2.contourArea(cnt) for cnt in filtered)
-fläche_mm2 = fläche_pixel / (pixels_per_mm ** 2)
+    # ✅ Ergebnisse anzeigen
+    st.success(f"🔴 Flecken gefunden: {fleckenzahl}")
+    st.info(f"📐 Fläche: {fläche_pixel:.2f} Pixel² ({fläche_mm2:.2f} mm²)")
 
-# 📢 Ergebnisse anzeigen
-st.success(f"🔴 Flecken gefunden: {fleckenzahl}")
-st.info(f"📐 Fläche: {fläche_pixel:.2f} Pixel² ({fläche_mm2:.2f} mm²)")
+    # 🖼️ Bild anzeigen mit gezeichneten Konturen
+    output = image_np.copy()
+    cv2.drawContours(output, filtered, -1, (0, 255, 0), 2)
+    st.image(output, caption="Markierte Flecken", channels="RGB")
