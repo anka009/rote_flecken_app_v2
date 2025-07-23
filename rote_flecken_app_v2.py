@@ -89,19 +89,37 @@ for uploaded_file in uploaded_files:
         # 🖍️ Canvas zur manuellen Markierung
         st.subheader("🖍️ Manuelle Fleckenmarkierung")
 
-      from PIL import Image
+from PIL import Image
 
-background_image = Image.fromarray(image_np)
-canvas_result = st_canvas(
-    fill_color="rgba(255, 0, 0, 0.3)",
-    stroke_width=2,
-    background_image=background_image,
-    update_streamlit=True,
-    height=image_np.shape[0],
-    width=image_np.shape[1],
-    drawing_mode="rect",
-    key=f"canvas_{i}"
-)
+# 🔁 Schleife über alle hochgeladenen Dateien
+for i, uploaded_file in enumerate(uploaded_files):
+    st.header(f"🖼️ Datei: `{uploaded_file.name}`")
+
+    try:
+        image_pil = Image.open(uploaded_file)
+        frames = [frame.convert("RGB") for frame in ImageSequence.Iterator(image_pil)]
+        image_np = np.array(frames[0])
+        pil_image = Image.fromarray(image_np)
+
+        # 🖌️ Zeichenbereich
+        canvas_result = st_canvas(
+            fill_color="rgba(255, 0, 0, 0.3)",
+            stroke_width=2,
+            background_image=pil_image,
+            update_streamlit=True,
+            height=pil_image.height,
+            width=pil_image.width,
+            drawing_mode="rect",
+            key=f"canvas_{i}"
+        )
+
+        # 🧮 Beispielhafte Auswertung (optional)
+        if canvas_result.json_data is not None:
+            st.write("📌 Anzahl Zeichnungen:", len(canvas_result.json_data["objects"]))
+
+    except Exception as e:
+        st.error(f"❌ Fehler beim Verarbeiten der Datei `{uploaded_file.name}`: {e}")
+
 
 if canvas_result.json_data and "objects" in canvas_result.json_data:
             st.markdown("🎯 Manuell markierte Flecken:")
