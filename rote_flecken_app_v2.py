@@ -88,5 +88,5 @@ if uploaded_files:
     # 🧾 Gesamtergebnisse
     st.success(f"✅ Gesamte Fleckenanzahl: {total_flecken}")
     st.info(f"📐 Gesamtfläche (Pixel): {total_pixel_area:.2f}")
-    fläche_mm² = total_pixel_area / ((300 / 25.4) ** 2)  # DPI als Umrechnungsbasis
+    fläche_mm2 = total_pixel_area / ((300 / 25.4) ** 2)  # DPI als Umrechnungsbasis
     st.info(f"📏 Geschätzte Fläche in mm²: {fläche_mm²:.2f}")
