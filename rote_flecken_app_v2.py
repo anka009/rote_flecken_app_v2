@@ -120,15 +120,39 @@ for i, uploaded_file in enumerate(uploaded_files):
     except Exception as e:
         st.error(f"❌ Fehler beim Verarbeiten der Datei `{uploaded_file.name}`: {e}")
 
+# 🧮 Manuelle Fleckenanalyse mit Zeichenfläche
+try:
+    image_pil = Image.open(uploaded_file)
+    frames = [frame.convert("RGB") for frame in ImageSequence.Iterator(image_pil)]
+    image_np = np.array(frames[0])
+    pil_image = Image.fromarray(image_np)
 
-if canvas_result.json_data and "objects" in canvas_result.json_data:
-    st.markdown("🎯 Manuell markierte Flecken:")
-    for obj in canvas_result.json_data["objects"]:
-        x = obj["left"]
-        y = obj["top"]
-        w = obj["width"]
-        h = obj["height"]
-        st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
+    canvas_result = st_canvas(
+        fill_color="rgba(255, 0, 0, 0.3)",
+        stroke_width=2,
+        background_image=pil_image,
+        update_streamlit=True,
+        height=pil_image.height,
+        width=pil_image.width,
+        drawing_mode="rect",
+        key=f"canvas_{uploaded_file.name}"
+    )
+
+    if canvas_result and canvas_result.json_data and "objects" in canvas_result.json_data:
+        st.markdown("🎯 Manuell markierte Flecken:")
+        for obj in canvas_result.json_data["objects"]:
+            x = obj["left"]
+            y = obj["top"]
+            w = obj["width"]
+            h = obj["height"]
+            st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
+
+        # Beispielhafte Zählung (optional)
+        st.info(f"📌 Markierungen insgesamt: {len(canvas_result.json_data['objects'])}")
+
+except Exception as e:
+    st.error(f"❌ Fehler bei der manuellen Analyse: {e}")
+
 
     total_flecken += fleckenzahl
     total_pixel_area += fläche_pixel
