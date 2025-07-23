@@ -89,21 +89,21 @@ for uploaded_file in uploaded_files:
         # 🖍️ Canvas zur manuellen Markierung
         st.subheader("🖍️ Manuelle Fleckenmarkierung")
 
-        from PIL import Image
+      from PIL import Image
 
-        pil_image = Image.fromarray(image_np)
-        canvas_result = st_canvas(
-            fill_color="rgba(255, 0, 0, 0.3)",
-            stroke_width=2,
-            background_image = image_np,
-            update_streamlit=True,
-            height=image_np.shape[0],
-            width=image_np.shape[1],
-            drawing_mode="rect",
-            key=f"canvas_{i}"
-        )
+background_image = Image.fromarray(image_np)
+canvas_result = st_canvas(
+    fill_color="rgba(255, 0, 0, 0.3)",
+    stroke_width=2,
+    background_image=background_image,
+    update_streamlit=True,
+    height=image_np.shape[0],
+    width=image_np.shape[1],
+    drawing_mode="rect",
+    key=f"canvas_{i}"
+)
 
-        if canvas_result.json_data and "objects" in canvas_result.json_data:
+if canvas_result.json_data and "objects" in canvas_result.json_data:
             st.markdown("🎯 Manuell markierte Flecken:")
             for obj in canvas_result.json_data["objects"]:
                 x = obj["left"]
