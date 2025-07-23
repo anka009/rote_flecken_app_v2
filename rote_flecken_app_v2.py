@@ -26,83 +26,90 @@ if uploaded_files:
     total_flecken = 0
     total_pixel_area = 0
 
-    for uploaded_file in uploaded_files:
-        st.header(f"🖼️ Datei: `{uploaded_file.name}`")
+# 🔄 Bildanalyse pro Datei
+for uploaded_file in uploaded_files:
+    st.header(f"🖼️ Datei: `{uploaded_file.name}`")
 
-        # 📥 Versuch: Bild laden als Sequenz
+    # 📥 Versuch: Bild laden als Sequenz
+    try:
+        image_pil = Image.open(uploaded_file)
+        frames = [frame.convert("RGB") for frame in ImageSequence.Iterator(image_pil)]
+    except:
         try:
-            image_pil = Image.open(uploaded_file)
-            frames = [frame.convert("RGB") for frame in ImageSequence.Iterator(image_pil)]
+            image_single = Image.open(uploaded_file).convert("RGB")
+            frames = [image_single]
         except:
-            try:
-                image_single = Image.open(uploaded_file).convert("RGB")
-                frames = [image_single]
-            except:
-                frames = []
+            frames = []
 
-        # ❌ Kein gültiges Bild – Schleife überspringen
-        if not frames:
-            st.error("❌ Dieses Bild konnte nicht verarbeitet werden.")
-            continue  # 🛡️ Nur gültige Bilder werden analysiert
+    # ❌ Ungültige Datei überspringen
+    if not frames:
+        st.error("❌ Dieses Bild konnte nicht verarbeitet werden.")
+        continue
 
-        # 🔄 Frame-Schleife zur Fleckenerkennung
-        for i, frame in enumerate(frames):
-            if len(frames) > 1:
-                st.subheader(f"📄 Seite {i+1}")
+    # 🧮 Initialisiere Summen
+    total_flecken = 0
+    total_pixel_area = 0
 
-            # 🖼️ Frame → NumPy → HSV
-            image_np = np.array(frame)
-            hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
+    # 🔄 Analyse pro Frame
+    for i, frame in enumerate(frames):
+        if len(frames) > 1:
+            st.subheader(f"📄 Seite {i+1}")
 
-            # 🎚️ Farbsensitivität (Slider aus Sidebar)
-            lower_dynamic = np.array([h_min, s_min, v_min])
-            upper_dynamic = np.array([h_max, 255, 255])
-            mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
+        # 🖼️ Frame konvertieren
+        image_np = np.array(frame)
+        hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
 
-            # 🧼 Maske säubern + Konturen finden
-            kernel = np.ones((5, 5), np.uint8)
-            mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-            contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            min_area = 50
-            filtered = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
+        # 🎚️ Farbgrenzen aus Slider
+        lower_dynamic = np.array([h_min, s_min, v_min])
+        upper_dynamic = np.array([h_max, 255, 255])
+        mask = cv2.inRange(hsv, lower_dynamic, upper_dynamic)
 
-            # 📊 Ergebnisse pro Frame
-            fleckenzahl = len(filtered)
-            fläche_pixel = sum(cv2.contourArea(cnt) for cnt in filtered)
-            fläche_mm2 = fläche_pixel / (pixels_per_mm ** 2)
+        # 🧹 Maske bereinigen
+        kernel = np.ones((5, 5), np.uint8)
+        mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-            st.success(f"🔴 Flecken gefunden: {fleckenzahl}")
-            st.info(f"📐 Fläche: {fläche_pixel:.2f} Pixel² ({fläche_mm2:.2f} mm²)")
+        # 🔍 Konturen erkennen
+        contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        min_area = 50
+        filtered = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
 
-            # 📷 Bild anzeigen mit Konturen
-            output = image_np.copy()
-            cv2.drawContours(output, filtered, -1, (0, 255, 0), 2)
-            st.image(output, caption="Markierte Flecken", channels="RGB")
+        # 📊 Analyse-Ergebnisse
+        fleckenzahl = len(filtered)
+        fläche_pixel = sum(cv2.contourArea(cnt) for cnt in filtered)
+        fläche_mm2 = fläche_pixel / (pixels_per_mm ** 2)
 
-# 🖍️ Manuelle Fleckenmarkierung via Canvas
-st.subheader("🖍️ Manuelle Fleckenmarkierung")
+        st.success(f"🔴 Flecken gefunden: {fleckenzahl}")
+        st.info(f"📐 Fläche: {fläche_pixel:.2f} Pixel² ({fläche_mm2:.2f} mm²)")
 
-canvas_result = st_canvas(
-    fill_color="rgba(255, 0, 0, 0.3)",
-    stroke_width=2,
-    background_image=Image.fromarray(image_np),
-    update_streamlit=True,
-    height=image_np.shape[0],
-    width=image_np.shape[1],
-    drawing_mode="rect",  # Alternative: "freedraw", "line", "circle"
-    key=f"canvas_{i}"
-)
+        # 📷 Bild mit Konturen anzeigen
+        output = image_np.copy()
+        cv2.drawContours(output, filtered, -1, (0, 255, 0), 2)
+        st.image(output, caption="Markierte Flecken", channels="RGB")
 
-# 📋 Auslesen der Rechteck-Koordinaten
-if canvas_result.json_data and "objects" in canvas_result.json_data:
-    st.markdown("🎯 Manuell markierte Flecken:")
-    for obj in canvas_result.json_data["objects"]:
-        x = obj["left"]
-        y = obj["top"]
-        w = obj["width"]
-        h = obj["height"]
-        st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
+        # 🖍️ Canvas zur manuellen Markierung
+        st.subheader("🖍️ Manuelle Fleckenmarkierung")
 
-         # 📦 Summen aktualisieren
+        canvas_result = st_canvas(
+            fill_color="rgba(255, 0, 0, 0.3)",
+            stroke_width=2,
+            background_image=Image.fromarray(image_np),
+            update_streamlit=True,
+            height=image_np.shape[0],
+            width=image_np.shape[1],
+            drawing_mode="rect",
+            key=f"canvas_{i}"
+        )
+
+        if canvas_result.json_data and "objects" in canvas_result.json_data:
+            st.markdown("🎯 Manuell markierte Flecken:")
+            for obj in canvas_result.json_data["objects"]:
+                x = obj["left"]
+                y = obj["top"]
+                w = obj["width"]
+                h = obj["height"]
+                st.write(f"🟥 Rechteck: x={x}, y={y}, Breite={w}, Höhe={h}")
+
+        # 📦 Summen aktualisieren
         total_flecken += fleckenzahl
         total_pixel_area += fläche_pixel
+
