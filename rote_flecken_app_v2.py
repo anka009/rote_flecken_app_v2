@@ -101,17 +101,17 @@ st.download_button(
 )
       
 
-    # 🌟 Gesamtergebnisse anzeigen
-    st.success(f"✅ Gesamte Fleckenanzahl: {st.session_state['total_flecken']}")
-    st.info(f"📐 Gesamtfläche (Pixel): {st.session_state['total_pixel_area']}")
+# 🌟 Gesamtergebnisse anzeigen
+st.success(f"✅ Gesamte Fleckenanzahl: {st.session_state['total_flecken']}")
+st.info(f"📐 Gesamtfläche (Pixel): {st.session_state['total_pixel_area']}")
 
-    # 📦 CSV-Export
-    df = pd.DataFrame(st.session_state["analyse_ergebnisse"])
-    csv_data = df.to_csv(index=False).encode('utf-8')
+# 📦 CSV-Export
+df = pd.DataFrame(st.session_state["analyse_ergebnisse"])
+csv_data = df.to_csv(index=False).encode('utf-8')
 
-    st.download_button(
-        label="📄 Ergebnisse als CSV herunterladen",
-        data=csv_data,
-        file_name="flecken_analyse.csv",
-        mime="text/csv"
-    )
+st.download_button(
+    label="📄 Ergebnisse als CSV herunterladen",
+    data=csv_data,
+    file_name="flecken_analyse.csv",
+    mime="text/csv"
+)
