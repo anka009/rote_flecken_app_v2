@@ -78,6 +78,28 @@ if uploaded_files:
             # 🔢 Summierung
             st.session_state["total_flecken"] += fleckenzahl
             st.session_state["total_pixel_area"] += fläche_pixel
+      import pandas as pd
+
+# In Tabelle umwandeln
+df = pd.DataFrame(st.session_state["analyse_ergebnisse"])
+
+# Schöne Anzeige im Streamlit-Dashboard
+st.markdown("## 📊 Gesamttabelle aller Ergebnisse")
+st.dataframe(df.style.highlight_max(axis=0), use_container_width=True)
+
+import io
+
+excel_buffer = io.BytesIO()
+with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
+    df.to_excel(writer, index=False, sheet_name='Analyse')
+
+st.download_button(
+    label="📥 Tabelle als Excel herunterladen",
+    data=excel_buffer.getvalue(),
+    file_name="flecken_gesamttabelle.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+      
 
     # 🌟 Gesamtergebnisse anzeigen
     st.success(f"✅ Gesamte Fleckenanzahl: {st.session_state['total_flecken']}")
