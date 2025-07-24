@@ -20,7 +20,7 @@ if st.sidebar.button("🧹 Neues Experiment starten"):
     st.session_state["analyse_ergebnisse"] = []
     st.session_state["total_flecken"] = 0
     st.session_state["total_pixel_area"] = 0
-    st.experimental_rerun()
+    st.rerun()
 
 # 🎨 Farbempfindlichkeit via Slider
 h_min = st.sidebar.slider("Hue min", 0, 180, 0)
