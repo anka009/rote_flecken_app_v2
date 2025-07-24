@@ -31,7 +31,7 @@ min_area = 50
 pixels_per_mm = 10  # oder passend zu deiner Skalierung
 
 # 📤 Datei-Upload
-uploaded_files = st.file_uploader("Bilder hochladen", type=["gif", "png", "jpg", "jpeg"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Bilder hochladen", type=["gif", "png", "jpg", "jpeg", "tif", "tiff"], accept_multiple_files=True)
 
 if uploaded_files:
     for i, uploaded_file in enumerate(uploaded_files):
