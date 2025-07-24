@@ -78,7 +78,7 @@ if uploaded_files:
             # 🔢 Summierung
             st.session_state["total_flecken"] += fleckenzahl
             st.session_state["total_pixel_area"] += fläche_pixel
-      import pandas as pd
+import pandas as pd
 
 # In Tabelle umwandeln
 df = pd.DataFrame(st.session_state["analyse_ergebnisse"])
