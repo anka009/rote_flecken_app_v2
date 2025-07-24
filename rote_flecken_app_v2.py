@@ -4,6 +4,21 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageSequence
 
+# 🔄 Experiment zurücksetzen
+if "total_flecken" not in st.session_state:
+    st.session_state["total_flecken"] = 0
+if "total_pixel_area" not in st.session_state:
+    st.session_state["total_pixel_area"] = 0
+if "analyse_ergebnisse" not in st.session_state:
+    st.session_state["analyse_ergebnisse"] = []
+
+# 🧹 Button zum Neustart
+if st.sidebar.button("🧹 Neues Experiment starten"):
+    st.session_state["total_flecken"] = 0
+    st.session_state["total_pixel_area"] = 0
+    st.session_state["analyse_ergebnisse"] = []
+    st.experimental_rerun()
+
 # 📂 Upload
 uploaded_files = st.file_uploader("📂 Lade mehrere Bilder hoch", type=["jpg", "jpeg", "png", "tif", "tiff"], accept_multiple_files=True)
 
@@ -15,6 +30,10 @@ upper_red2 = np.array([180, 255, 255])
 lower_brown = np.array([10, 100, 20])
 upper_brown = np.array([30, 255, 200])
 
+for j, frame in enumerate(frames):
+    image_np = np.array(frame)
+    hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
+ 
 # 🧪 Masken kombinieren
 mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
 mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
@@ -105,6 +124,33 @@ if uploaded_files:
                 "Fleckenzahl": fleckenzahl,
                 "Fleckfläche (Pixel)": fläche_pixel
             })
+
+     import pandas as pd
+import io
+
+# DataFrame aus deinen Ergebnissen
+df = pd.DataFrame(st.session_state["analyse_ergebnisse"])
+
+# CSV als Bytes vorbereiten
+csv_data = df.to_csv(index=False).encode('utf-8')
+
+# Download-Button für CSV
+st.download_button(
+    label="📄 Ergebnisse als CSV herunterladen",
+    data=csv_data,
+    file_name="flecken_analyse.csv",
+    mime="text/csv"
+)
+excel_buffer = io.BytesIO()
+with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
+    df.to_excel(writer, index=False, sheet_name='Analyse')
+
+st.download_button(
+    label="📥 Ergebnisse als Excel (.xlsx)",
+    data=excel_buffer.getvalue(),
+    file_name="flecken_analyse.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
 
     # 📊 Gesamtübersicht
     st.success(f"✅ Gesamte Fleckenanzahl: {total_flecken}")
