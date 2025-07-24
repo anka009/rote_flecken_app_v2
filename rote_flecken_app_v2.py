@@ -152,11 +152,11 @@ st.download_button(
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
-    # 📊 Gesamtübersicht
-    st.success(f"✅ Gesamte Fleckenanzahl: {total_flecken}")
-    st.info(f"📏 Gesamtfläche in Pixeln: {total_pixel_area:.2f}")
-    fläche_mm2 = total_pixel_area / ((300 / 25.4) ** 2)  # DPI-Umrechnung (300 dpi)
-    st.info(f"📐 Geschätzte Fläche in mm²: {fläche_mm2:.2f}")
+# 📊 Gesamtübersicht
+st.success(f"✅ Gesamte Fleckenanzahl: {total_flecken}")
+st.info(f"📏 Gesamtfläche in Pixeln: {total_pixel_area:.2f}")
+fläche_mm2 = total_pixel_area / ((300 / 25.4) ** 2)  # DPI-Umrechnung (300 dpi)
+st.info(f"📐 Geschätzte Fläche in mm²: {fläche_mm2:.2f}")
 
     # 🧾 Export als CSV
     df = pd.DataFrame(analyse_ergebnisse)
