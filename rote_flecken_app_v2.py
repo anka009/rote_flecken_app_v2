@@ -27,7 +27,8 @@ h_min = st.sidebar.slider("Hue min", 0, 180, 0)
 h_max = st.sidebar.slider("Hue max", 0, 180, 30)
 s_min = st.sidebar.slider("Sättigung min", 0, 255, 70)
 v_min = st.sidebar.slider("Helligkeit min", 0, 255, 50)
-min_area = 100
+min_area = st.sidebar.slider("🟢 Minimale Fleckfläche (Pixel)", min_value=10, max_value=1000, value=50, step=10)
+
 pixels_per_mm = 10  # oder passend zu deiner Skalierung
 
 # 📤 Datei-Upload
