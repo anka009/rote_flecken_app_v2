@@ -125,7 +125,7 @@ if uploaded_files:
                 "Fleckfläche (Pixel)": fläche_pixel
             })
 
-     import pandas as pd
+import pandas as pd
 import io
 
 # DataFrame aus deinen Ergebnissen
