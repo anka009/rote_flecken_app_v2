@@ -27,7 +27,7 @@ h_min = st.sidebar.slider("Hue min", 0, 180, 0)
 h_max = st.sidebar.slider("Hue max", 0, 180, 30)
 s_min = st.sidebar.slider("Sättigung min", 0, 255, 70)
 v_min = st.sidebar.slider("Helligkeit min", 0, 255, 50)
-min_area = 50
+min_area = 100
 pixels_per_mm = 10  # oder passend zu deiner Skalierung
 
 # 📤 Datei-Upload
